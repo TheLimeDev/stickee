@@ -65,6 +65,7 @@ export const AnalyticsEvents = {
   NOTE_DELETED: 'note_deleted',
   NOTE_PINNED: 'note_pinned',
   NOTE_UNPINNED: 'note_unpinned',
+  NOTE_COPIED: 'note_copied',
   SEARCH_PERFORMED: 'search_performed',
   VIEW_MODE_CHANGED: 'view_mode_changed',
   SETTINGS_OPENED: 'settings_opened',

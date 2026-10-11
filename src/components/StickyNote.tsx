@@ -2,12 +2,13 @@ import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Pin, Smile, CheckSquare, Archive } from "lucide-react";
+import { Pin, Smile, CheckSquare, Archive, Copy } from "lucide-react";
 import { EmojiPicker } from "./EmojiPicker";
 import { ReactionSummary } from "@/types/emojiReaction";
 import { toggleReaction } from "@/services/emojiReactionService";
 import { toast } from "sonner";
 import { LinkableText } from "./LinkableText";
+import { analytics, AnalyticsEvents } from "@/utils/analytics";
 import { memo } from "react";
 
 export type NoteStatus = 'To-Do' | 'Doing' | 'Done' | 'Backlog';
@@ -118,6 +119,22 @@ export const StickyNote = memo(({
     }
   };
 
+  const handleCopyClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(title ? `${title}\n\n${content}` : content);
+      toast.success('Note copied');
+      analytics.track(AnalyticsEvents.NOTE_COPIED, {
+        note_id: id,
+        has_title: !!title,
+        content_length: content.length,
+      });
+    } catch (error) {
+      console.error('Error copying note:', error);
+      toast.error('Failed to copy note');
+    }
+  };
+
   return (
     <>
       <Card
@@ -206,14 +223,25 @@ export const StickyNote = memo(({
             {status}
           </Badge>
           
-          {/* Emoji Reaction Button */}
-          <button
-            onClick={handleEmojiClick}
-            className="p-1 rounded-full hover:bg-accent transition-colors"
-            title="Add reaction"
-          >
-            <Smile size={16} className="text-foreground/60 hover:text-foreground emoji-react-icon" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleCopyClick}
+              className="p-1 rounded-full hover:bg-accent transition-colors"
+              title="Copy note"
+              aria-label="Copy note"
+            >
+              <Copy size={16} className="text-foreground/60 hover:text-foreground" />
+            </button>
+
+            {/* Emoji Reaction Button */}
+            <button
+              onClick={handleEmojiClick}
+              className="p-1 rounded-full hover:bg-accent transition-colors"
+              title="Add reaction"
+            >
+              <Smile size={16} className="text-foreground/60 hover:text-foreground emoji-react-icon" />
+            </button>
+          </div>
         </div>
         
         <button

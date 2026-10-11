@@ -43,6 +43,7 @@ The following events are automatically tracked:
 - `note_deleted` - When a user deletes a note
 - `note_pinned` - When a user pins a note
 - `note_unpinned` - When a user unpins a note
+- `note_copied` - When a user copies a note to the clipboard
 - `search_performed` - When a user performs a search
 - `view_mode_changed` - When a user changes view mode
 - `settings_opened` - When a user opens settings
