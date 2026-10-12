@@ -35,6 +35,8 @@ interface SettingsPanelProps {
 export const SettingsPanel = ({ onFontChange }: SettingsPanelProps) => {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
+  // Signed-in users' email comes from their auth account, not the editable profile.
+  const authEmail = user?.email ?? '';
   const [profile, setProfile] = useState<UserProfile>({ name: '', email: '', avatarColor: '#fff1bf', avatarImage: null });
   const [profileName, setProfileName] = useState('');
   const [profileEmail, setProfileEmail] = useState('');
@@ -156,7 +158,9 @@ export const SettingsPanel = ({ onFontChange }: SettingsPanelProps) => {
     const updated: UserProfile = {
       ...profile,
       name: profileName,
-      email: profileEmail,
+      // Keep the local mirror in sync with the auth account; only guests get an
+      // editable email.
+      email: authEmail || profileEmail,
     };
     await saveProfile(user.id, updated);
     setProfile(updated);
@@ -315,10 +319,18 @@ export const SettingsPanel = ({ onFontChange }: SettingsPanelProps) => {
               <Input
                 id="profile-email"
                 type="email"
-                value={profileEmail}
+                value={authEmail || profileEmail}
                 onChange={(e) => setProfileEmail(e.target.value)}
                 placeholder="Your email"
+                readOnly={!!authEmail}
+                aria-readonly={!!authEmail}
+                className={authEmail ? 'opacity-60 cursor-not-allowed' : undefined}
               />
+              {authEmail && (
+                <p className="text-xs text-muted-foreground">
+                  Managed by your sign-in account and can't be changed here.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
