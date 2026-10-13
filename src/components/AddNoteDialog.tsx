@@ -12,7 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { NoteStatus } from "@/components/StickyNote";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
-import { cn } from "@/lib/utils";
+import { cn, limitInsertedText } from "@/lib/utils";
+import { toast } from "sonner";
 import { soundEffects } from "@/utils/soundEffects";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { Mic, MicOff } from "lucide-react";
@@ -98,10 +99,14 @@ export const AddNoteDialog = ({ open, onOpenChange, onSave }: AddNoteDialogProps
   };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
+    const textarea = e.target;
     // Limit to 1500 characters
-    if (value.length <= 1500) {
-      setContent(value);
+    const { text, removed } = limitInsertedText(content, textarea.value, textarea.selectionEnd, 1500);
+    setContent(text);
+    if (removed > 0) {
+      const caret = textarea.selectionEnd - removed;
+      requestAnimationFrame(() => textarea.setSelectionRange(caret, caret));
+      toast.info("Notes can have a maximum of 1500 characters", { id: "note-content-limit" });
     }
   };
 
